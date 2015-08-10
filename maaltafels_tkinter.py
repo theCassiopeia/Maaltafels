@@ -361,6 +361,7 @@ root.title("Maaltafels oefenen ...")
 
 app = Application(root, select_oefening)
 root.attributes("-topmost", True) #om te zorgen dat het window op de voorgrond komt te staan
+root.geometry("300x200+100+100")
 root.mainloop()
 
 write_config(Spelers)
