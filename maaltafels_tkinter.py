@@ -169,6 +169,8 @@ class Application(Frame):
             self.startButton.config(state=NORMAL)
             #self.myParent.destroy()
 
+            Score.update(scoreApp)
+
     def function_maal(self):
         #print('Je koos : a - specifieke maaltafel')
         self.titelStr = 'Je koos : a - specifieke maaltafel'
@@ -214,7 +216,7 @@ class Application(Frame):
         self.function_generiek()
         
     def __init__(self, myParent, oef):
-        self.myParent=myParent
+        self.myParent = myParent
         self.selOef = oef
         self.titelContainer = Frame(myParent)
         self.titelContainer.pack()
@@ -276,6 +278,29 @@ class Application(Frame):
         self.starttime = time.time()
         self.labelVraag.config(text="Hoeveel is", fg="green")
         self.func()
+
+class Score(Frame):
+    def __init__(self, myParent):
+        self.myParentScore = myParent
+        self.scoreContainer = Frame(myParent)
+        self.scoreContainer.pack()
+        s='Naam      Score    Tijd\n'
+        for player in Spelers:
+            for score in player['Scores']:
+                s += "{0:<10s}{1:5d}{2:8.2f}\n".format(player['Naam'],score[0],score[1])
+        print(s)
+        self.scoreList = Text(self.scoreContainer)
+        self.scoreList.pack()
+        self.scoreList.insert(END, s)
+
+    def update(self):
+        s='Naam      Score    Tijd\n'
+        for player in Spelers:
+            for score in player['Scores']:
+                s += "{0:<10s}{1:5d}{2:8.2f}\n".format(player['Naam'],score[0],score[1])
+        if __DEBUG__:
+            print(s)
+        self.scoreList.replace(1.0, END, s)
 
 
 # Lees Config file
@@ -358,10 +383,19 @@ while True:
 
 root = Tk()
 root.title("Maaltafels oefenen ...")
-
-app = Application(root, select_oefening)
 root.attributes("-topmost", True) #om te zorgen dat het window op de voorgrond komt te staan
 root.geometry("300x200+100+100")
+
+
+scoreWindow = Toplevel()
+scoreWindow.geometry("300x500+420+100")
+scoreWindow.attributes("-topmost", True)
+scoreWindow.title("HIGH-SCORES")
+
+app = Application(root, select_oefening)
+
+scoreApp = Score(scoreWindow)
+
 root.mainloop()
 
 write_config(Spelers)
