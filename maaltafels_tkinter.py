@@ -31,6 +31,16 @@ if __DEBUG__:
 else:
     aantal_oefeningen = 10
 
+def toggleDebug():
+    global __DEBUG__   #global moeten toevoegen want anders was er een fout dat __DEBUG__ een lokale variabele was die nog niet geinitialiseerd werd
+    global debugTk
+    print(__DEBUG__, debugTk)
+    #__DEBUG__ = not(__DEBUG__)
+    #if __DEBUG__:
+    #    aantal_oefeningen = 5 #geeft weer hoeveel oefeningen er komen per reeks
+    #    print(__DEBUG__)
+    #else:
+    #    aantal_oefeningen = 10    
 
 def write_config(players):
     if __DEBUG__:
@@ -155,11 +165,10 @@ class Application(Frame):
     
         else:
             self.stoptime = time.time()
-            self.vraagStr = "Einde!!! \n Je behaalde " + str(self.score) + " punten in " + str(round(self.stoptime - self.starttime,1)) + " seconden."
+            self.vraagStr = "Einde!!! \n Je behaalde " + str(self.score) + " punten in " + str(int((self.stoptime - self.starttime)//60)) + " minuten en " +str(round((self.stoptime - self.starttime)%60,1)) + " seconden."
             self.labelVraag.config(text=self.vraagStr, fg="green")
             self.inputField.delete(0,END)
             self.inputField.pack_forget()
-            #self.inputField.config(state=DISABLED)
             self.labelTitel.config(text="", fg="green")
             self.labelFactor.config(text="")
             self.labelTafel.config(text="")
@@ -167,14 +176,12 @@ class Application(Frame):
             scoreOef = [self.score, round(self.stoptime - self.starttime,1)]
             Scores_speler.append(scoreOef)
             self.startButton.config(state=NORMAL)
-            #self.myParent.destroy()
 
             Score.update(scoreApp)
 
     def function_maal(self):
         #print('Je koos : a - specifieke maaltafel')
         self.titelStr = 'Je koos : a - specifieke maaltafel'
-#insert all code for selecting a maaltafel and do the test
         self.labelTitel.config(text=self.titelStr, fg="green")
         self.mofd="maal"
         self.rnd=False
@@ -183,7 +190,6 @@ class Application(Frame):
     def function_deel(self):
         #print('Je koos : b - specifieke deeltafel')
         self.titelStr = 'Je koos : b - specifieke deeltafel'
-#insert all code for selecting a maaltafel and do the test
         self.labelTitel.config(text=self.titelStr, fg="green")
         self.mofd="deel"
         self.rnd=False
@@ -192,7 +198,6 @@ class Application(Frame):
     def function_rnd_maal(self):
         #print('Je koos : c - random maaltafels')
         self.titelStr = 'Je koos : c - random maaltafels'
-#insert all code for selecting a maaltafel and do the test
         self.labelTitel.config(text=self.titelStr, fg="green")
         self.mofd="maal"
         self.rnd=True
@@ -201,7 +206,6 @@ class Application(Frame):
     def function_rnd_deel(self):
         #print('Je koos : d - random deeltafel')
         self.titelStr = 'Je koos : d - random deeltafel'
-#insert all code for selecting a maaltafel and do the test
         self.labelTitel.config(text=self.titelStr, fg="green")
         self.mofd="deel"
         self.rnd=True
@@ -314,15 +318,15 @@ print(s)
     
 # parse through lines
 # Selecteer speler of creeer een nieuwe speler
-print('selecteer een gekende speler of maak een nieuwe speler aan')
-i  =  0
-for player in Spelers:
-    i += 1
-    print(i, ' ', player['Naam'])
-i += 1
-print(i, '  Maak een nieuwe speler aan')
 # TO DO : selecteer speler
 while True:
+    print('selecteer een gekende speler of maak een nieuwe speler aan')
+    i  =  0
+    for player in Spelers:
+        i += 1
+        print(i, ' ', player['Naam'])
+    i += 1
+    print(i, '  Maak een nieuwe speler aan')
     select_speler = input('Maak je keuze : ')
     if not select_speler.isdigit() :
         print('Ongeldige keuze (digits)')
@@ -330,31 +334,36 @@ while True:
         select_speler = int(select_speler)
         if (select_speler > Aantal_gekende_spelers + 1) or (select_speler < 1) :
             print('Ongeldige keuze (out of range)')
-        else:
-            break
-if select_speler == Aantal_gekende_spelers + 1 :
-    # creeer nieuwe speler
-    Profiel = {'Naam':"", 'Scores':[]}
-    print('Je koos om een nieuwe speler te creeeren.')
-    while True:
-        Naam_speler = input('Naam : ')
-        for player in Spelers:
-            if Naam_speler == player['Naam']:
-                print('Naam bestaat al')
+        elif select_speler == Aantal_gekende_spelers + 1 :
+            # creeer nieuwe speler
+            Profiel = {'Naam':"", 'Scores':[]}
+            print('Je koos om een nieuwe speler te creeeren.')
+            Naam_speler = input('Naam : ')
+            spelerBestaat = False
+            for player in Spelers:
+                if Naam_speler == player['Naam']:
+                    print('Naam bestaat al')
+                    spelerBestaat = True
+                    break
+            if spelerBestaat == False:
+                # m.a.w. geen enkele "player" heeft een 'naam' gelijk aan Naamspeler, d.w.z. dat er geen break is geweest in de For loop
+                #dan moeten we uit de True-while loop en doorgaan met aanmaken van nieuwe gebruiker
+                Profiel['Naam'] = Naam_speler
+                Scores_speler = []
+                Profiel['Scores'] = Scores_speler
+                Aantal_gekende_spelers += 1
+                Spelers.append(Profiel)
+                write_config(Spelers) 
                 break
-        else: # m.a.w. geen enkele "player" heeft een 'naam' gelijk aan Naamspeler, d.w.z. dat er geen break is geweest in de For loop
-            break #dan moeten we uit de True-while loop en doorgaan met aanmaken van nieuwe gebruiker
+
+        else:
+            Naam_speler = Spelers[select_speler-1]['Naam']
+            Scores_speler = Spelers[select_speler-1]['Scores']
+            break
     # TO DO : check of de naam al voorkomt in de bestaande profielen
-    Profiel['Naam'] = Naam_speler
-    Scores_speler = []
-    Profiel['Scores'] = Scores_speler
-    Aantal_gekende_spelers += 1
-    Spelers.append(Profiel)
+    
      # Voeg nieuwe speler toe aan de configuratie file
-    write_config(Spelers)
-else :
-    Naam_speler = Spelers[select_speler-1]['Naam']
-    Scores_speler = Spelers[select_speler-1]['Scores']
+
 
 s='Naam van geselecteerde speler = {}'.format(Naam_speler)
 print(s)
@@ -382,10 +391,16 @@ while True:
         print('Foute ingave!!')
 
 root = Tk()
-root.title("Maaltafels oefenen ...")
-root.attributes("-topmost", True) #om te zorgen dat het window op de voorgrond komt te staan
-root.geometry("300x200+100+100")
 
+
+menubar = Menu(root)
+debugTk = BooleanVar()
+menubar.add_checkbutton(label="Debug", onvalue=True, offvalue=False, variable=debugTk, command=toggleDebug)
+menubar.add_command(label="Quit!", command=root.destroy)
+root.title("Maaltafels oefenen ...")
+root.geometry("300x200+100+100")
+root.config(menu=menubar)
+root.attributes("-topmost", True) #om te zorgen dat het window op de voorgrond komt te staan
 
 scoreWindow = Toplevel()
 scoreWindow.geometry("300x500+420+100")
