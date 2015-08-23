@@ -5,8 +5,9 @@ import os
 import random
 import time
 
-__DEBUG__ = True  #Setting to True generates more print-statements
-
+__DEBUG__ = False  #Setting to True generates more print-statementsa
+#This parameter can be changed through the preferences menu item since Aug21,2015
+aantal_oefeningen = 10
 # selecteer speler of creeer een nieuwe speler
 
 # selecteer opgave
@@ -26,21 +27,25 @@ __DEBUG__ = True  #Setting to True generates more print-statements
 Spelers = []
 Aantal_gekende_spelers = 0
 max_tafels = 10   # geeft de hoogste tafel weer
-if __DEBUG__:
-    aantal_oefeningen = 5 #geeft weer hoeveel oefeningen er komen per reeks
-else:
-    aantal_oefeningen = 10
 
+
+#def toggleDebug(debugVar):
 def toggleDebug():
-    global __DEBUG__   #global moeten toevoegen want anders was er een fout dat __DEBUG__ een lokale variabele was die nog niet geinitialiseerd werd
+    global __DEBUG__  #global moeten toevoegen want anders was er een fout dat __DEBUG__ een lokale variabele was die nog niet geinitialiseerd werd
+    global aantal_oefeningen
     global debugTk
-    print(__DEBUG__, debugTk)
-    #__DEBUG__ = not(__DEBUG__)
-    #if __DEBUG__:
-    #    aantal_oefeningen = 5 #geeft weer hoeveel oefeningen er komen per reeks
-    #    print(__DEBUG__)
-    #else:
-    #    aantal_oefeningen = 10    
+    #global debugTk
+
+#    if debugVar:
+    if debugTk.get():
+        __DEBUG__ = True
+        aantal_oefeningen = 5 #geeft weer hoeveel oefeningen er komen per reeks
+        print("TRUE")
+    else:
+        __DEBUG__ = False
+        aantal_oefeningen = 10
+        print("FALSE")
+
 
 def write_config(players):
     if __DEBUG__:
@@ -115,7 +120,6 @@ class Application(Frame):
             self.inputField.delete(0,END)
 
 
-
     def function_generiek(self):
 
         if __DEBUG__:
@@ -138,6 +142,7 @@ class Application(Frame):
             elif self.mofd == "deel":
                 if self.tafel == 0:
                     self.tafel = 1  #om delingen door 0 te vermijden!
+                    self.ans = self.factor * self.tafel
                 #s = 'Hoeveel is ' + str(ans) + ' / ' + str(tafel) + '? '
                 self.labelFactor.config(text = str(self.ans))
                 self.labelTafel.config(text = str(self.tafel))
@@ -165,7 +170,7 @@ class Application(Frame):
     
         else:
             self.stoptime = time.time()
-            self.vraagStr = "Einde!!! \n Je behaalde " + str(self.score) + " punten in " + str(int((self.stoptime - self.starttime)//60)) + " minuten en " +str(round((self.stoptime - self.starttime)%60,1)) + " seconden."
+            self.vraagStr = "Einde!!! \n Je behaalde " + str(self.score) + " punten in " + str(int((self.stoptime - self.starttime)//60)) + " minuten en " +str(int(round((self.stoptime - self.starttime)%60,0))) + " seconden."
             self.labelVraag.config(text=self.vraagStr, fg="green")
             self.inputField.delete(0,END)
             self.inputField.pack_forget()
@@ -175,53 +180,106 @@ class Application(Frame):
             self.labelMaal.config(text="")
             scoreOef = [self.score, round(self.stoptime - self.starttime,1)]
             Scores_speler.append(scoreOef)
+            self.startButton.pack(side=LEFT)
             self.startButton.config(state=NORMAL)
 
             Score.update(scoreApp)
 
+    def selectTafel(self):
+        self.inputField.config(state=NORMAL)
+        s = 'Welke tafels wil je oefenen (0 tot {})??? '.format(max_tafels)
+        self.labelTitel.config(text=s, fg="green")
+
+    def initOef(self):
+        self.inputField.pack()
+        self.inputField.focus()
+        self.labelSelOef.pack_forget()
+        self.oefA.pack_forget()
+        self.oefB.pack_forget()
+        self.oefC.pack_forget()
+        self.oefD.pack_forget()
+        self.oefE.pack_forget()
+        
     def function_maal(self):
+        self.initOef()
         #print('Je koos : a - specifieke maaltafel')
-        self.titelStr = 'Je koos : a - specifieke maaltafel'
+        self.titelStr = 'Je koos : specifieke maaltafel'
         self.labelTitel.config(text=self.titelStr, fg="green")
         self.mofd="maal"
         self.rnd=False
-        self.function_generiek()
+        self.selectTafel()
     
     def function_deel(self):
+        self.initOef()
         #print('Je koos : b - specifieke deeltafel')
-        self.titelStr = 'Je koos : b - specifieke deeltafel'
+        self.titelStr = 'Je koos : specifieke deeltafel'
         self.labelTitel.config(text=self.titelStr, fg="green")
         self.mofd="deel"
         self.rnd=False
-        self.function_generiek()
+        self.selectTafel()
     
     def function_rnd_maal(self):
+        self.initOef()
         #print('Je koos : c - random maaltafels')
-        self.titelStr = 'Je koos : c - random maaltafels'
+        self.titelStr = 'Je koos : random maaltafels'
         self.labelTitel.config(text=self.titelStr, fg="green")
         self.mofd="maal"
         self.rnd=True
-        self.function_generiek()
+        self.vervolgOef()
 
     def function_rnd_deel(self):
+        self.initOef()
         #print('Je koos : d - random deeltafel')
-        self.titelStr = 'Je koos : d - random deeltafel'
+        self.titelStr = 'Je koos : random deeltafel'
         self.labelTitel.config(text=self.titelStr, fg="green")
         self.mofd="deel"
         self.rnd=True
-        self.function_generiek()
+        self.vervolgOef()
     
     def function_rnd_all(self):
+        self.initOef()
         #print('Je koos : e - random maal- en deeltafels')
-        self.titelStr = 'Je koos : e - random maal- en deeltafels'
+        self.titelStr = 'Je koos : random maal- en deeltafels'
         self.labelTitel.config(text=self.titelStr, fg="green")
         self.mofd="rnd"
         self.rnd=True
+        self.vervolgOef()
+
+    def selectOefening(self):
+        # selecteer opgave
+        # - maaltafels (0 - 10)
+        # - deeltafels (0 - 10)
+        # - random maaltafels
+        # - random deeltafels
+        # - random maal- of deeltafels
+        self.hOef = 0
+        self.startButton.pack_forget()
+        self.labelVraag.config(text="", fg="green")
+        self.labelMededeling.config(text="", fg="green")
+        
+        self.labelSelOef = Label(self.vraagContainer, text="Mogelijke oefeningen", fg="green")
+        self.labelSelOef.pack(side=LEFT)
+        self.oefA = Button(self.probleemContainer, text="Oefen specifieke maaltafel", command=self.function_maal)
+        self.oefA.pack()
+        self.oefB = Button(self.probleemContainer, text="Oefen specifieke deeltafel", command=self.function_deel)
+        self.oefB.pack()
+        self.oefC = Button(self.probleemContainer, text="Oefen random maaltafels", command=self.function_rnd_maal)
+        self.oefC.pack()
+        self.oefD = Button(self.probleemContainer, text="Oefen random deeltafels", command=self.function_rnd_deel)
+        self.oefD.pack()
+        self.oefE = Button(self.probleemContainer, text="Oefen random maal- en deeltafels", command=self.function_rnd_all)
+        self.oefE.pack()
+
+    def vervolgOef(self):            
+        self.hOef = 1        
+        self.score = 0
+        self.starttime = time.time()
+        self.labelVraag.config(text="Hoeveel is", fg="green")
         self.function_generiek()
         
-    def __init__(self, myParent, oef):
+    def __init__(self, myParent):
         self.myParent = myParent
-        self.selOef = oef
+        #self.selOef = oef
         self.titelContainer = Frame(myParent)
         self.titelContainer.pack()
         self.vraagContainer = Frame(myParent)
@@ -236,10 +294,11 @@ class Application(Frame):
         self.mededelingContainer.pack()
         self.stopContainer = Frame(myParent)
         self.stopContainer.pack()
-        self.startButton = Button(self.stopContainer, text="START", command=self.startOef)
-        self.startButton.pack(side=LEFT)
-        self.stopButton = Button(self.stopContainer, text="STOP", fg="red", command=self.myParent.destroy)
-        self.stopButton.pack(side=LEFT)
+        self.startButton = Button(self.stopContainer, text="AGAIN", command=self.selectOefening)
+        #self.startButton.pack(side=LEFT)
+        #removed these lines since I added a Quit menu item on top of the screen
+        #self.stopButton = Button(self.stopContainer, text="STOP", fg="red", command=self.myParent.destroy)
+        #self.stopButton.pack(side=LEFT)
         self.labelTitel = Label(self.titelContainer, text="", fg="green")
         self.labelFactor = Label(self.probleemContainer, text = "", font = ("Helvetica", 32))
         self.labelTafel = Label(self.probleemContainer, text = "", font = ("Helvetica", 32))
@@ -256,34 +315,12 @@ class Application(Frame):
         self.labelMededeling = Label(self.mededelingContainer, text="", fg="green")
         self.labelMededeling.pack()        
         self.startButton.focus()
+
+        self.selectOefening()
     
-    
-    def startOef(self):
-        self.hOef = 0
-        self.inputField.pack()
-        self.inputField.focus()
-        self.startButton.config(state=DISABLED)
-        self.inputField.config(state=NORMAL)
-        if self.selOef in ['a', 'b']:
-            s = 'Welke tafels wil je oefenen (0 tot {})??? '.format(max_tafels)
-            self.labelTitel.config(text=s, fg="green")
-        else:
-            self.vervolgOef()
-                
-    def vervolgOef(self):            
-        functions = {'a': self.function_maal,
-                     'b': self.function_deel,
-                     'c': self.function_rnd_maal,
-                     'd': self.function_rnd_deel,
-                     'e': self.function_rnd_all}
-        self.func = functions[self.selOef]
-        self.hOef = 1        
-        self.score = 0
-        self.starttime = time.time()
-        self.labelVraag.config(text="Hoeveel is", fg="green")
-        self.func()
 
 class Score(Frame):
+
     def __init__(self, myParent):
         self.myParentScore = myParent
         self.scoreContainer = Frame(myParent)
@@ -292,7 +329,8 @@ class Score(Frame):
         for player in Spelers:
             for score in player['Scores']:
                 s += "{0:<10s}{1:5d}{2:8.2f}\n".format(player['Naam'],score[0],score[1])
-        print(s)
+        if __DEBUG__:
+            print(s)
         self.scoreList = Text(self.scoreContainer)
         self.scoreList.pack()
         self.scoreList.insert(END, s)
@@ -314,7 +352,8 @@ if os.path.isfile('maaltafels.cfg'):
     Aantal_gekende_spelers = len(Spelers)
 
 s='aantal gekende spelers = {}'.format(Aantal_gekende_spelers)
-print(s)
+if __DEBUG__:
+    print(s)
     
 # parse through lines
 # Selecteer speler of creeer een nieuwe speler
@@ -369,36 +408,21 @@ s='Naam van geselecteerde speler = {}'.format(Naam_speler)
 print(s)
 s='Scores van geselecteerde speler = {}'.format(Scores_speler)
 print(s)
-
-# selecteer opgave
-# - maaltafels (0 - 10)
-# - deeltafels (0 - 10)
-# - random maaltafels
-# - random deeltafels
-# - random maal- of deeltafels
-print('Mogelijke oefeningen')
-print('a - Oefen specifieke maaltafel')
-print('b - Oefen specifieke deeltafel')
-print('c - Oefen random maaltafels')
-print('d - Oefen random deeltafels')
-print('e - Oefen random maal- en deeltafels')
-
-while True:
-    select_oefening = input('Maak je keuze: ')
-    if select_oefening in ['a', 'b', 'c', 'd', 'e']:
-        break
-    else:
-        print('Foute ingave!!')
-
+        
 root = Tk()
 
+debugTk = BooleanVar()
+debugTk.set(False)
 
 menubar = Menu(root)
-debugTk = BooleanVar()
-menubar.add_checkbutton(label="Debug", onvalue=True, offvalue=False, variable=debugTk, command=toggleDebug)
+prefMenu = Menu(menubar, tearoff=0)
+
+#prefMenu.add_checkbutton(label="Debug", onvalue=True, offvalue=False, variable=debugTk, command=toggleDebug(debugTk.get()))
+prefMenu.add_checkbutton(label="Debug", onvalue=True, offvalue=False, variable=debugTk, command=toggleDebug)
+menubar.add_cascade(label="Preferences", menu=prefMenu)
 menubar.add_command(label="Quit!", command=root.destroy)
 root.title("Maaltafels oefenen ...")
-root.geometry("300x200+100+100")
+root.geometry("300x250+100+100")
 root.config(menu=menubar)
 root.attributes("-topmost", True) #om te zorgen dat het window op de voorgrond komt te staan
 
@@ -407,7 +431,8 @@ scoreWindow.geometry("300x500+420+100")
 scoreWindow.attributes("-topmost", True)
 scoreWindow.title("HIGH-SCORES")
 
-app = Application(root, select_oefening)
+#app = Application(root, select_oefening)
+app = Application(root)
 
 scoreApp = Score(scoreWindow)
 
