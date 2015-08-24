@@ -8,14 +8,6 @@ import time
 __DEBUG__ = False  #Setting to True generates more print-statementsa
 #This parameter can be changed through the preferences menu item since Aug21,2015
 aantal_oefeningen = 10
-# selecteer speler of creeer een nieuwe speler
-
-# selecteer opgave
-# - maaltafels (0 - 10)
-# - deeltafels (0 - 10)
-# - random maaltafels
-# - random deeltafels
-# - random maal- of deeltafels
 
 # hoe spelers en hun scores opslaan?
 #? dictionary
@@ -28,15 +20,11 @@ Spelers = []
 Aantal_gekende_spelers = 0
 max_tafels = 10   # geeft de hoogste tafel weer
 
-
-#def toggleDebug(debugVar):
 def toggleDebug():
     global __DEBUG__  #global moeten toevoegen want anders was er een fout dat __DEBUG__ een lokale variabele was die nog niet geinitialiseerd werd
     global aantal_oefeningen
     global debugTk
-    #global debugTk
-
-#    if debugVar:
+    
     if debugTk.get():
         __DEBUG__ = True
         aantal_oefeningen = 5 #geeft weer hoeveel oefeningen er komen per reeks
@@ -45,7 +33,6 @@ def toggleDebug():
         __DEBUG__ = False
         aantal_oefeningen = 10
         print("FALSE")
-
 
 def write_config(players):
     if __DEBUG__:
@@ -71,7 +58,6 @@ def read_config():
     return
 
 class Application(Frame):
-#insert all code for selecting a maaltafel and do the test
     def evaluate(self, event):
         inp = self.inputField.get()
         self.labelMededeling.config(text="", fg="red")
@@ -93,22 +79,18 @@ class Application(Frame):
                     if int(inp) == self.ans:
                         self.mededelingStr = "Correct"
                         self.labelMededeling.config(text=self.mededelingStr, fg="green")
-                        #print("Correct")
                         self.score += 1
                     else:
                         self.mededelingStr = "Fout. Het moest " + str(self.ans) + " zijn!!! "
                         self.labelMededeling.config(text=self.mededelingStr, fg="red")
-                        #print("Fout. Het moest" + self.ans + " zijn!!! " )
                 else: #self.mofdHuidg = "deel"
                     if int(inp) == self.factor:
                         self.mededelingStr = "Correct"
                         self.labelMededeling.config(text=self.mededelingStr, fg="green")
-                        #print("Correct")
                         self.score += 1
                     else:
                         self.mededelingStr = "Fout. Het moest " + str(self.factor) + " zijn!!! "
                         self.labelMededeling.config(text=self.mededelingStr, fg="red")
-                        #print("Fout. Het moest" + self.factor + " zijn!!! " )
                 self.hOef += 1
                 self.inputField.delete(0,END)
                 self.function_generiek()
@@ -119,9 +101,7 @@ class Application(Frame):
             #self.labelMededeling.config(text="", fg="red")
             self.inputField.delete(0,END)
 
-
     def function_generiek(self):
-
         if __DEBUG__:
             print(self.hOef)
 
@@ -132,27 +112,25 @@ class Application(Frame):
                 self.tafel = int(round(random.random()*10,0))
             self.ans = self.factor * self.tafel
 
-            if self.mofd == "maal":
-                #s = 'Hoeveel is ' + str(factor) + ' x ' + str(self.tafel) + '? '
+            choice = random.randint(0,1) #when self.mofd == "rnd", this line will choose either "maal" or "deel"
+            if self.mofd == "maal" or choice == 0 :
                 self.labelFactor.config(text = str(self.factor))
                 self.labelTafel.config(text = str(self.tafel))
                 self.labelMaal.config(text = "x")
                 self.mofdHuidig="maal"
                 
-            elif self.mofd == "deel":
+            else # self.mofd == "deel" or choice == 1:
                 if self.tafel == 0:
                     self.tafel = 1  #om delingen door 0 te vermijden!
                     self.ans = self.factor * self.tafel
-                #s = 'Hoeveel is ' + str(ans) + ' / ' + str(tafel) + '? '
                 self.labelFactor.config(text = str(self.ans))
                 self.labelTafel.config(text = str(self.tafel))
                 self.labelMaal.config(text = ":")
                 self.mofdHuidig="deel"
-
-            else:    #self.mod = "rnd"
+"""
+            else:    #self.mofd = "rnd"
                 choice = random.randint(0,1)
                 if choice == 0:
-                    #s = 'Hoeveel is ' + str(factor) + ' x ' + str(tafel) + '? '
                     self.labelFactor.config(text = str(self.factor))
                     self.labelTafel.config(text = str(self.tafel))
                     self.labelMaal.config(text = "x")
@@ -160,14 +138,14 @@ class Application(Frame):
                 else:
                     if self.tafel == 0:
                         self.tafel = 1  #om delingen door 0 te vermijden!
-                    #s = 'Hoeveel is ' + str(ans) + ' / ' + str(tafel) + '? '
+                        self.ans = self.factor * self.tafel
                     self.labelFactor.config(text = str(self.ans))
                     self.labelTafel.config(text = str(self.tafel))
                     self.labelMaal.config(text = ":")
                     self.mofdHuidig="deel"
+"""
             self.inputField.focus()
-            #hier komt code voor random maal/deel en random tafel
-    
+
         else:
             self.stoptime = time.time()
             self.vraagStr = "Einde!!! \n Je behaalde " + str(self.score) + " punten in " + str(int((self.stoptime - self.starttime)//60)) + " minuten en " +str(int(round((self.stoptime - self.starttime)%60,0))) + " seconden."
@@ -202,7 +180,6 @@ class Application(Frame):
         
     def function_maal(self):
         self.initOef()
-        #print('Je koos : a - specifieke maaltafel')
         self.titelStr = 'Je koos : specifieke maaltafel'
         self.labelTitel.config(text=self.titelStr, fg="green")
         self.mofd="maal"
@@ -211,7 +188,6 @@ class Application(Frame):
     
     def function_deel(self):
         self.initOef()
-        #print('Je koos : b - specifieke deeltafel')
         self.titelStr = 'Je koos : specifieke deeltafel'
         self.labelTitel.config(text=self.titelStr, fg="green")
         self.mofd="deel"
@@ -220,7 +196,6 @@ class Application(Frame):
     
     def function_rnd_maal(self):
         self.initOef()
-        #print('Je koos : c - random maaltafels')
         self.titelStr = 'Je koos : random maaltafels'
         self.labelTitel.config(text=self.titelStr, fg="green")
         self.mofd="maal"
@@ -229,7 +204,6 @@ class Application(Frame):
 
     def function_rnd_deel(self):
         self.initOef()
-        #print('Je koos : d - random deeltafel')
         self.titelStr = 'Je koos : random deeltafel'
         self.labelTitel.config(text=self.titelStr, fg="green")
         self.mofd="deel"
@@ -238,7 +212,6 @@ class Application(Frame):
     
     def function_rnd_all(self):
         self.initOef()
-        #print('Je koos : e - random maal- en deeltafels')
         self.titelStr = 'Je koos : random maal- en deeltafels'
         self.labelTitel.config(text=self.titelStr, fg="green")
         self.mofd="rnd"
@@ -279,7 +252,6 @@ class Application(Frame):
         
     def __init__(self, myParent):
         self.myParent = myParent
-        #self.selOef = oef
         self.titelContainer = Frame(myParent)
         self.titelContainer.pack()
         self.vraagContainer = Frame(myParent)
@@ -320,7 +292,6 @@ class Application(Frame):
     
 
 class Score(Frame):
-
     def __init__(self, myParent):
         self.myParentScore = myParent
         self.scoreContainer = Frame(myParent)
@@ -344,9 +315,7 @@ class Score(Frame):
             print(s)
         self.scoreList.replace(1.0, END, s)
 
-
 # Lees Config file
-
 if os.path.isfile('maaltafels.cfg'):
     read_config()
     Aantal_gekende_spelers = len(Spelers)
@@ -357,7 +326,6 @@ if __DEBUG__:
     
 # parse through lines
 # Selecteer speler of creeer een nieuwe speler
-# TO DO : selecteer speler
 while True:
     print('selecteer een gekende speler of maak een nieuwe speler aan')
     i  =  0
@@ -399,8 +367,6 @@ while True:
             Naam_speler = Spelers[select_speler-1]['Naam']
             Scores_speler = Spelers[select_speler-1]['Scores']
             break
-    # TO DO : check of de naam al voorkomt in de bestaande profielen
-    
      # Voeg nieuwe speler toe aan de configuratie file
 
 
@@ -417,7 +383,6 @@ debugTk.set(False)
 menubar = Menu(root)
 prefMenu = Menu(menubar, tearoff=0)
 
-#prefMenu.add_checkbutton(label="Debug", onvalue=True, offvalue=False, variable=debugTk, command=toggleDebug(debugTk.get()))
 prefMenu.add_checkbutton(label="Debug", onvalue=True, offvalue=False, variable=debugTk, command=toggleDebug)
 menubar.add_cascade(label="Preferences", menu=prefMenu)
 menubar.add_command(label="Quit!", command=root.destroy)
@@ -431,7 +396,6 @@ scoreWindow.geometry("300x500+420+100")
 scoreWindow.attributes("-topmost", True)
 scoreWindow.title("HIGH-SCORES")
 
-#app = Application(root, select_oefening)
 app = Application(root)
 
 scoreApp = Score(scoreWindow)
@@ -439,8 +403,6 @@ scoreApp = Score(scoreWindow)
 root.mainloop()
 
 write_config(Spelers)
-
-# Show High-Scores
 
 # Limit number of scores to 10
 
