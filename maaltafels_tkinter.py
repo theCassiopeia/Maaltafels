@@ -17,6 +17,8 @@ aantal_oefeningen = 10
 
 # Spelers is een list van profielen
 Spelers = []
+Naam_speler = ""
+Scores_speler = []
 Aantal_gekende_spelers = 0
 max_tafels = 10   # geeft de hoogste tafel weer
 
@@ -101,7 +103,44 @@ class Application(Frame):
             #self.labelMededeling.config(text="", fg="red")
             self.inputField.delete(0,END)
 
+    def evaluateSpeler(self, event):
+        global Aantal_gekende_spelers
+        global Naam_speler
+        global Scores_speler
+        
+        self.labelSelSpeler.pack_forget()
+        Naam_speler = self.inputField.get()
+        self.inputField.delete(0,END)
+        self.inputField.pack_forget()
+        
+        spelerBestaat = False
+        for player in Spelers:
+            if Naam_speler == player['Naam']:
+                self.labelVraag.config(text="De ingegeven naam bestaat al !!", fg="red")
+                spelerBestaat = True
+                break
+            
+        if spelerBestaat:
+            self.selectSpeler() #opnieuw speler selecteren
+        else:
+            # m.a.w. geen enkele "player" heeft een 'naam' gelijk aan Naam_speler, d.w.z. dat er geen break is geweest in de For loop
+            #dan moeten we uit de True-while loop en doorgaan met aanmaken van nieuwe gebruiker
+            Profiel = {'Naam':"", 'Scores':[]}
+            Profiel['Naam'] = Naam_speler
+            Scores_speler = []
+            Profiel['Scores'] = Scores_speler
+            Aantal_gekende_spelers += 1
+            Spelers.append(Profiel)
+            if __DEBUG__:
+                print(Spelers)
+            write_config(Spelers)
+            
+            self.selectOefening()
+
     def function_generiek(self):
+        global Naam_speler
+        global Scores_speler
+
         if __DEBUG__:
             print(self.hOef)
 
@@ -113,13 +152,13 @@ class Application(Frame):
             self.ans = self.factor * self.tafel
 
             choice = random.randint(0,1) #when self.mofd == "rnd", this line will choose either "maal" or "deel"
-            if self.mofd == "maal" or choice == 0 :
+            if self.mofd == "maal" or (self.mofd == "rnd" and choice == 0) :
                 self.labelFactor.config(text = str(self.factor))
                 self.labelTafel.config(text = str(self.tafel))
                 self.labelMaal.config(text = "x")
                 self.mofdHuidig="maal"
                 
-            else: # self.mofd == "deel" or choice == 1
+            else: # self.mofd == "deel" or (self.mofd="rnd" and choice == 1)
                 if self.tafel == 0:
                     self.tafel = 1  #om delingen door 0 te vermijden!
                     self.ans = self.factor * self.tafel
@@ -142,6 +181,7 @@ class Application(Frame):
             self.labelMaal.config(text="")
             scoreOef = [self.score, round(self.stoptime - self.starttime,1)]
             Scores_speler.append(scoreOef)
+            self.startButton.config(text="AGAIN", fg="blue", command=self.selectOefening)
             self.startButton.pack(side=LEFT)
             self.startButton.config(state=NORMAL)
 
@@ -153,6 +193,7 @@ class Application(Frame):
         self.labelVraag.config(text=s, fg="green")
 
     def initOef(self):
+        self.inputField.bind("<Return>", self.evaluate)
         self.inputField.pack()
         self.inputField.focus()
         self.labelSelOef.pack_forget()
@@ -235,60 +276,49 @@ class Application(Frame):
         self.function_generiek()
 
     def selectSpeler(self):
-        self.labelSelSpeler = Label(self.vraagContainer, text="Selecteer een gekende speler of maak een nieuwe speler aan", fg="green")
-        self.labelSelSpeler.pack(side=LEFT)
+        self.labelSelSpeler = Label(self.vraagContainer, text="Selecteer een gekende speler \nof maak een nieuwe speler aan", fg="green")
+        self.labelSelSpeler.pack()
         self.selectedSpeler=StringVar()
         self.selectedSpeler.set("Nieuwe Speler")
-        
+        self.radiobuttons = []
         for player in Spelers:
-            self.b = Radiobutton(self.probleemContainer, text=player['Naam'], variable=self.selectedSpeler, fg="blue")
-            self.b.pack()
-        self.b = Radiobutton(self.probleemContainer, text="Nieuwe Speler", variable=self.selectedSpeler, fg="red")
-        self.b.pack()
+            b = Radiobutton(self.probleemContainer, text=player['Naam'], variable=self.selectedSpeler, value=player['Naam'], fg="blue")
+            b.pack(anchor=W)
+            self.radiobuttons.append(b)
+        b = Radiobutton(self.probleemContainer, text="Nieuwe Speler", variable=self.selectedSpeler, value="Nieuwe Speler", fg="red")
+        b.pack(anchor=W)
+        self.radiobuttons.append(b)
+        self.startButton.config(text="SELECT")
+        self.startButton.pack()
 
-        """
-    print('selecteer een gekende speler of maak een nieuwe speler aan')
-    i  =  0
-    for player in Spelers:
-        i += 1
-        print(i, ' ', player['Naam'])
-    i += 1
-    print(i, '  Maak een nieuwe speler aan')
-    select_speler = input('Maak je keuze : ')
-    if not select_speler.isdigit() :
-        print('Ongeldige keuze (digits)')
-    else:
-        select_speler = int(select_speler)
-        if (select_speler > Aantal_gekende_spelers + 1) or (select_speler < 1) :
-            print('Ongeldige keuze (out of range)')
-        elif select_speler == Aantal_gekende_spelers + 1 :
-            # creeer nieuwe speler
-            Profiel = {'Naam':"", 'Scores':[]}
-            print('Je koos om een nieuwe speler te creeeren.')
-            Naam_speler = input('Naam : ')
-            spelerBestaat = False
-            for player in Spelers:
-                if Naam_speler == player['Naam']:
-                    print('Naam bestaat al')
-                    spelerBestaat = True
-                    break
-            if spelerBestaat == False:
-                # m.a.w. geen enkele "player" heeft een 'naam' gelijk aan Naamspeler, d.w.z. dat er geen break is geweest in de For loop
-                #dan moeten we uit de True-while loop en doorgaan met aanmaken van nieuwe gebruiker
-                Profiel['Naam'] = Naam_speler
-                Scores_speler = []
-                Profiel['Scores'] = Scores_speler
-                Aantal_gekende_spelers += 1
-                Spelers.append(Profiel)
-                write_config(Spelers) 
-                break
+    def spelerSelected(self):
+        global Naam_speler
+        global Scores_speler
+
+        for buttons in self.radiobuttons:
+            buttons.pack_forget()
+        self.startButton.pack_forget()
+
+        selPlayer = self.selectedSpeler.get()
+        self.labelVraag.config(text="") #in case a name was given for a new player which already existed, the text should be deleted.
+
+        if selPlayer == "Nieuwe Speler" :
+            self.labelSelSpeler.config(text="Je koos om een nieuwe speler te creeeren.\nGeef een naam:")
+            self.inputField.bind("<Return>", self.evaluateSpeler)
+            self.inputField.pack()
+            self.inputField.focus()
 
         else:
-            Naam_speler = Spelers[select_speler-1]['Naam']
-            Scores_speler = Spelers[select_speler-1]['Scores']
-            break
-     # Voeg nieuwe speler toe aan de configuratie file
-"""
+            self.labelSelSpeler.pack_forget()
+            Naam_speler = selPlayer
+            for player in Spelers:
+                if player['Naam'] == Naam_speler:
+                    Scores_speler = player['Scores']
+                    break
+            if __DEBUG__:
+                print(Naam_speler, Scores_speler)
+
+            self.selectOefening()
         
     def __init__(self, myParent):
         self.myParent = myParent
@@ -297,7 +327,7 @@ class Application(Frame):
         self.vraagContainer = Frame(myParent)
         self.vraagContainer.pack()
         self.labelVraag = Label(self.vraagContainer, text="", fg="green")
-        self.labelVraag.pack(side=LEFT)
+        self.labelVraag.pack()
         self.probleemContainer = Frame(myParent)
         self.probleemContainer.pack()
         self.oplossingContainer = Frame(myParent)
@@ -306,11 +336,7 @@ class Application(Frame):
         self.mededelingContainer.pack()
         self.stopContainer = Frame(myParent)
         self.stopContainer.pack()
-        self.startButton = Button(self.stopContainer, text="AGAIN", command=self.selectOefening)
-        #self.startButton.pack(side=LEFT)
-        #removed these lines since I added a Quit menu item on top of the screen
-        #self.stopButton = Button(self.stopContainer, text="STOP", fg="red", command=self.myParent.destroy)
-        #self.stopButton.pack(side=LEFT)
+        self.startButton = Button(self.stopContainer, text="", command=self.spelerSelected)
         self.labelTitel = Label(self.titelContainer, text="", fg="green")
         self.labelFactor = Label(self.probleemContainer, text = "", font = ("Helvetica", 32))
         self.labelTafel = Label(self.probleemContainer, text = "", font = ("Helvetica", 32))
@@ -320,7 +346,7 @@ class Application(Frame):
         self.labelMaal.pack(side=LEFT)
         self.labelTafel.pack(side=LEFT)
         self.inputField = Entry(self.oplossingContainer, font = ("Helvetica", 16), justify=CENTER, width=5)
-        self.inputField.bind("<Return>", self.evaluate)
+        
         #self.inputField.pack()
         #commented out since the startOef function performs the pack.
         #A pack_forget is performed at the end of a sequence to clean up the screen
@@ -367,56 +393,6 @@ if __DEBUG__:
     
 # parse through lines
 # Selecteer speler of creeer een nieuwe speler
-""""
-while True:
-    print('selecteer een gekende speler of maak een nieuwe speler aan')
-    i  =  0
-    for player in Spelers:
-        i += 1
-        print(i, ' ', player['Naam'])
-    i += 1
-    print(i, '  Maak een nieuwe speler aan')
-    select_speler = input('Maak je keuze : ')
-    if not select_speler.isdigit() :
-        print('Ongeldige keuze (digits)')
-    else:
-        select_speler = int(select_speler)
-        if (select_speler > Aantal_gekende_spelers + 1) or (select_speler < 1) :
-            print('Ongeldige keuze (out of range)')
-        elif select_speler == Aantal_gekende_spelers + 1 :
-            # creeer nieuwe speler
-            Profiel = {'Naam':"", 'Scores':[]}
-            print('Je koos om een nieuwe speler te creeeren.')
-            Naam_speler = input('Naam : ')
-            spelerBestaat = False
-            for player in Spelers:
-                if Naam_speler == player['Naam']:
-                    print('Naam bestaat al')
-                    spelerBestaat = True
-                    break
-            if spelerBestaat == False:
-                # m.a.w. geen enkele "player" heeft een 'naam' gelijk aan Naamspeler, d.w.z. dat er geen break is geweest in de For loop
-                #dan moeten we uit de True-while loop en doorgaan met aanmaken van nieuwe gebruiker
-                Profiel['Naam'] = Naam_speler
-                Scores_speler = []
-                Profiel['Scores'] = Scores_speler
-                Aantal_gekende_spelers += 1
-                Spelers.append(Profiel)
-                write_config(Spelers) 
-                break
-
-        else:
-            Naam_speler = Spelers[select_speler-1]['Naam']
-            Scores_speler = Spelers[select_speler-1]['Scores']
-            break
-     # Voeg nieuwe speler toe aan de configuratie file
-
-
-s='Naam van geselecteerde speler = {}'.format(Naam_speler)
-print(s)
-s='Scores van geselecteerde speler = {}'.format(Scores_speler)
-print(s)
-"""
 
 root = Tk()
 
