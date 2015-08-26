@@ -5,31 +5,29 @@ import os
 import random
 import time
 
-__DEBUG__ = False  #Setting to True generates more print-statementsa
-#This parameter can be changed through the preferences menu item since Aug21,2015
-aantal_oefeningen = 10
-
-# hoe spelers en hun scores opslaan?
-#? dictionary
 # profiles = {'naam':"", 'scores':[]}
-# ID moet wellicht niet meegenomen worden aangezien Spelers een LIST is
 # TO DO : toevoegen tijden waarop de oefening gemaakt is - is deel van de Scores list : bv [score, time]
 
 # Spelers is een list van profielen
+
+#Global variables
+__DEBUG__ = False  #Setting to True generates more print-statements - This parameter can be changed through the preferences menu item since Aug21,2015
+aantal_oefeningen = 10 #geeft weer hoeveel oefeningen er komen per reeks
+max_tafels = 10   # geeft de hoogste tafel weer
 Spelers = []
 Naam_speler = ""
 Scores_speler = []
 Aantal_gekende_spelers = 0
-max_tafels = 10   # geeft de hoogste tafel weer
 
 def toggleDebug():
-    global __DEBUG__  #global moeten toevoegen want anders was er een fout dat __DEBUG__ een lokale variabele was die nog niet geinitialiseerd werd
+    global __DEBUG__
+    #global moeten toevoegen want anders was er een fout dat __DEBUG__ een lokale variabele was die nog niet geinitialiseerd werd
+    #is enkel nodig indien er een assignment is aan de variabele !
     global aantal_oefeningen
-    global debugTk
     
-    if debugTk.get():
+    if debugTk.get(): #geen globale variable, want er komt geen assignment aan debugTk, enkel uitlezen
         __DEBUG__ = True
-        aantal_oefeningen = 5 #geeft weer hoeveel oefeningen er komen per reeks
+        aantal_oefeningen = 5 
         print("TRUE")
     else:
         __DEBUG__ = False
@@ -48,16 +46,22 @@ def write_config(players):
     return
 
 def read_config():
-    if __DEBUG__:
-        print("Reading in data")
-    data_file = open('maaltafels.cfg')
-    for line in data_file:
-        player = eval(line)
-        Spelers.append(player)
-    data_file.close()
-    if __DEBUG__:
-        print(Spelers)
-    return
+    global Aantal_gekende_spelers
+    # Lees Config file
+    if os.path.isfile('maaltafels.cfg'):
+        if __DEBUG__:
+            print("Reading in data")
+        data_file = open('maaltafels.cfg')
+        for line in data_file:
+            player = eval(line)
+            Spelers.append(player)
+        data_file.close()
+        Aantal_gekende_spelers = len(Spelers)
+        if __DEBUG__:
+            s='aantal gekende spelers = {}'.format(Aantal_gekende_spelers)
+            print(s)
+            print(Spelers)
+    return    
 
 class Application(Frame):
     def evaluate(self, event):
@@ -382,17 +386,12 @@ class Score(Frame):
             print(s)
         self.scoreList.replace(1.0, END, s)
 
-# Lees Config file
-if os.path.isfile('maaltafels.cfg'):
-    read_config()
-    Aantal_gekende_spelers = len(Spelers)
 
-s='aantal gekende spelers = {}'.format(Aantal_gekende_spelers)
-if __DEBUG__:
-    print(s)
     
 # parse through lines
 # Selecteer speler of creeer een nieuwe speler
+
+read_config()
 
 root = Tk()
 
