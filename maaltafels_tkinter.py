@@ -259,17 +259,17 @@ class Application(Frame):
         self.labelVraag.config(text="", fg="green")
         self.labelMededeling.config(text="", fg="green")
         
-        self.labelSelOef = Label(self.vraagContainer, text="Mogelijke oefeningen", fg="green")
+        self.labelSelOef = Label(self.vraagContainer, text="Mogelijke oefeningen", fg="green", bg="white")
         self.labelSelOef.pack(side=LEFT)
-        self.oefA = Button(self.probleemContainer, text="Oefen specifieke maaltafel", command=self.function_maal)
+        self.oefA = Button(self.probleemContainer, text="Oefen specifieke maaltafel", command=self.function_maal, width=30)
         self.oefA.pack()
-        self.oefB = Button(self.probleemContainer, text="Oefen specifieke deeltafel", command=self.function_deel)
+        self.oefB = Button(self.probleemContainer, text="Oefen specifieke deeltafel", command=self.function_deel, width=30)
         self.oefB.pack()
-        self.oefC = Button(self.probleemContainer, text="Oefen random maaltafels", command=self.function_rnd_maal)
+        self.oefC = Button(self.probleemContainer, text="Oefen random maaltafels", command=self.function_rnd_maal, width=30)
         self.oefC.pack()
-        self.oefD = Button(self.probleemContainer, text="Oefen random deeltafels", command=self.function_rnd_deel)
+        self.oefD = Button(self.probleemContainer, text="Oefen random deeltafels", command=self.function_rnd_deel, width=30)
         self.oefD.pack()
-        self.oefE = Button(self.probleemContainer, text="Oefen random maal- en deeltafels", command=self.function_rnd_all)
+        self.oefE = Button(self.probleemContainer, text="Oefen random maal- en deeltafels", command=self.function_rnd_all, width=30)
         self.oefE.pack()
 
     def vervolgOef(self):            
@@ -280,16 +280,20 @@ class Application(Frame):
         self.function_generiek()
 
     def selectSpeler(self):
-        self.labelSelSpeler = Label(self.vraagContainer, text="Selecteer een gekende speler \nof maak een nieuwe speler aan", fg="green")
+        self.labelSelSpeler = Label(self.vraagContainer,
+                                    text="Selecteer een gekende speler \nof maak een nieuwe speler aan",
+                                    fg="green", bg="white")
         self.labelSelSpeler.pack()
         self.selectedSpeler=StringVar()
         self.selectedSpeler.set("Nieuwe Speler")
         self.radiobuttons = []
         for player in Spelers:
-            b = Radiobutton(self.probleemContainer, text=player['Naam'], variable=self.selectedSpeler, value=player['Naam'], fg="blue")
+            b = Radiobutton(self.probleemContainer, text=player['Naam'], variable=self.selectedSpeler,
+                            value=player['Naam'], fg="blue", selectcolor="yellow", indicatoron=0, width=15)
             b.pack(anchor=W)
             self.radiobuttons.append(b)
-        b = Radiobutton(self.probleemContainer, text="Nieuwe Speler", variable=self.selectedSpeler, value="Nieuwe Speler", fg="red")
+        b = Radiobutton(self.probleemContainer, text="Nieuwe Speler", variable=self.selectedSpeler,
+                        value="Nieuwe Speler", fg="red", selectcolor="yellow", indicatoron=0, width=15)
         b.pack(anchor=W)
         self.radiobuttons.append(b)
         self.startButton.config(text="SELECT")
@@ -326,35 +330,35 @@ class Application(Frame):
         
     def __init__(self, myParent):
         self.myParent = myParent
-        self.titelContainer = Frame(myParent)
+        self.titelContainer = Frame(myParent, bg="white")
         self.titelContainer.pack()
-        self.vraagContainer = Frame(myParent)
+        self.vraagContainer = Frame(myParent, bg="white")
         self.vraagContainer.pack()
-        self.labelVraag = Label(self.vraagContainer, text="", fg="green")
+        self.labelVraag = Label(self.vraagContainer, text="", fg="green", bg="white")
         self.labelVraag.pack()
-        self.probleemContainer = Frame(myParent)
+        self.probleemContainer = Frame(myParent, bg="white")
         self.probleemContainer.pack()
-        self.oplossingContainer = Frame(myParent)
+        self.oplossingContainer = Frame(myParent, bg="white")
         self.oplossingContainer.pack()
-        self.mededelingContainer = Frame(myParent)
+        self.mededelingContainer = Frame(myParent, bg="white")
         self.mededelingContainer.pack()
-        self.stopContainer = Frame(myParent)
+        self.stopContainer = Frame(myParent, bg="white")
         self.stopContainer.pack()
         self.startButton = Button(self.stopContainer, text="", command=self.spelerSelected)
-        self.labelTitel = Label(self.titelContainer, text="", fg="green")
-        self.labelFactor = Label(self.probleemContainer, text = "", font = ("Helvetica", 32))
-        self.labelTafel = Label(self.probleemContainer, text = "", font = ("Helvetica", 32))
-        self.labelMaal = Label(self.probleemContainer, text = "", font = ("Helvetica", 32))
+        self.labelTitel = Label(self.titelContainer, text="", fg="green", bg="white")
+        self.labelFactor = Label(self.probleemContainer, text = "", font = ("Helvetica", 32), bg="white")
+        self.labelTafel = Label(self.probleemContainer, text = "", font = ("Helvetica", 32), bg="white")
+        self.labelMaal = Label(self.probleemContainer, text = "", font = ("Helvetica", 32), bg="white")
         self.labelTitel.pack()
         self.labelFactor.pack(side=LEFT)
         self.labelMaal.pack(side=LEFT)
         self.labelTafel.pack(side=LEFT)
-        self.inputField = Entry(self.oplossingContainer, font = ("Helvetica", 16), justify=CENTER, width=5)
+        self.inputField = Entry(self.oplossingContainer, font = ("Helvetica", 16), justify=CENTER, width=15, bg="yellow")
         
         #self.inputField.pack()
         #commented out since the startOef function performs the pack.
         #A pack_forget is performed at the end of a sequence to clean up the screen
-        self.labelMededeling = Label(self.mededelingContainer, text="", fg="green")
+        self.labelMededeling = Label(self.mededelingContainer, text="", fg="green", bg="white")
         self.labelMededeling.pack()        
         self.startButton.focus()
 
@@ -365,7 +369,7 @@ class Application(Frame):
 class Score(Frame):
     def __init__(self, myParent):
         self.myParentScore = myParent
-        self.scoreContainer = Frame(myParent)
+        self.scoreContainer = Frame(myParent, bg="white")
         self.scoreContainer.pack()
         s='Naam      Score    Tijd\n'
         for player in Spelers:
@@ -406,13 +410,14 @@ menubar.add_cascade(label="Preferences", menu=prefMenu)
 menubar.add_command(label="Quit!", command=root.destroy)
 root.title("Maaltafels oefenen ...")
 root.geometry("300x250+100+100")
-root.config(menu=menubar)
+root.config(menu=menubar, bg="white")
 root.attributes("-topmost", True) #om te zorgen dat het window op de voorgrond komt te staan
 
 scoreWindow = Toplevel()
 scoreWindow.geometry("300x500+420+100")
 scoreWindow.attributes("-topmost", True)
 scoreWindow.title("HIGH-SCORES")
+scoreWindow.config(bg="white")
 
 app = Application(root)
 
