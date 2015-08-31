@@ -175,7 +175,8 @@ class Application(Frame):
 
         else:
             self.stoptime = time.time()
-            self.vraagStr = "Einde!!! \n Je behaalde " + str(self.score) + " punten in " + str(int((self.stoptime - self.starttime)//60)) + " minuten en " +str(int(round((self.stoptime - self.starttime)%60,0))) + " seconden."
+            self.scorePercent = int(round(self.score*100/(self.hOef-1),0))
+            self.vraagStr = "Einde!!! \n Je behaalde " + "{0:4d}".format(self.scorePercent) + "% in " + str(int((self.stoptime - self.starttime)//60)) + " minuten en " +str(int(round((self.stoptime - self.starttime)%60,0))) + " seconden."
             self.labelVraag.config(text=self.vraagStr, fg="green")
             self.inputField.delete(0,END)
             self.inputField.pack_forget()
@@ -183,10 +184,12 @@ class Application(Frame):
             self.labelFactor.config(text="")
             self.labelTafel.config(text="")
             self.labelMaal.config(text="")
-            scoreOef = [self.score, round(self.stoptime - self.starttime,1)]
+            scoreOef = [self.scorePercent, round(self.stoptime - self.starttime,1)]
             Scores_speler.append(scoreOef)
-            self.startButton.config(text="AGAIN", fg="blue", command=self.selectOefening)
+            self.startButton.config(text="OPNIEUW", fg="blue", command=self.selectOefening)
+            self.startButton.bind("<Return>", self.selectOefening)
             self.startButton.pack(side=LEFT)
+            self.startButton.focus()
             self.startButton.config(state=NORMAL)
 
             Score.update(scoreApp)
@@ -209,7 +212,7 @@ class Application(Frame):
         
     def function_maal(self):
         self.initOef()
-        self.titelStr = 'Je koos : specifieke maaltafel'
+        self.titelStr = 'Je koos : bepaalde maaltafel'
         self.labelTitel.config(text=self.titelStr, fg="green")
         self.mofd="maal"
         self.rnd=False
@@ -217,7 +220,7 @@ class Application(Frame):
     
     def function_deel(self):
         self.initOef()
-        self.titelStr = 'Je koos : specifieke deeltafel'
+        self.titelStr = 'Je koos : bepaalde deeltafel'
         self.labelTitel.config(text=self.titelStr, fg="green")
         self.mofd="deel"
         self.rnd=False
@@ -225,7 +228,7 @@ class Application(Frame):
     
     def function_rnd_maal(self):
         self.initOef()
-        self.titelStr = 'Je koos : random maaltafels'
+        self.titelStr = 'Je koos : willekeurige maaltafels'
         self.labelTitel.config(text=self.titelStr, fg="green")
         self.mofd="maal"
         self.rnd=True
@@ -233,7 +236,7 @@ class Application(Frame):
 
     def function_rnd_deel(self):
         self.initOef()
-        self.titelStr = 'Je koos : random deeltafel'
+        self.titelStr = 'Je koos : willekeurige deeltafel'
         self.labelTitel.config(text=self.titelStr, fg="green")
         self.mofd="deel"
         self.rnd=True
@@ -241,13 +244,15 @@ class Application(Frame):
     
     def function_rnd_all(self):
         self.initOef()
-        self.titelStr = 'Je koos : random maal- en deeltafels'
+        self.titelStr = 'Je koos : willekeurige maal- en deeltafels'
         self.labelTitel.config(text=self.titelStr, fg="green")
         self.mofd="rnd"
         self.rnd=True
         self.vervolgOef()
 
-    def selectOefening(self):
+    def selectOefening(self, event=None):
+        #event=None added => Again knop has now bound to pressing <Return> as well,
+        #                    but generates two parameters to the function
         # selecteer opgave
         # - maaltafels (0 - 10)
         # - deeltafels (0 - 10)
@@ -261,15 +266,15 @@ class Application(Frame):
         
         self.labelSelOef = Label(self.vraagContainer, text="Mogelijke oefeningen", fg="green", bg="white")
         self.labelSelOef.pack(side=LEFT)
-        self.oefA = Button(self.probleemContainer, text="Oefen specifieke maaltafel", command=self.function_maal, width=30)
+        self.oefA = Button(self.probleemContainer, text="Oefen bepaalde maaltafel", command=self.function_maal, width=30)
         self.oefA.pack()
-        self.oefB = Button(self.probleemContainer, text="Oefen specifieke deeltafel", command=self.function_deel, width=30)
+        self.oefB = Button(self.probleemContainer, text="Oefen bepaalde deeltafel", command=self.function_deel, width=30)
         self.oefB.pack()
-        self.oefC = Button(self.probleemContainer, text="Oefen random maaltafels", command=self.function_rnd_maal, width=30)
+        self.oefC = Button(self.probleemContainer, text="Oefen willekeurige maaltafels", command=self.function_rnd_maal, width=30)
         self.oefC.pack()
-        self.oefD = Button(self.probleemContainer, text="Oefen random deeltafels", command=self.function_rnd_deel, width=30)
+        self.oefD = Button(self.probleemContainer, text="Oefen willekeurige deeltafels", command=self.function_rnd_deel, width=30)
         self.oefD.pack()
-        self.oefE = Button(self.probleemContainer, text="Oefen random maal- en deeltafels", command=self.function_rnd_all, width=30)
+        self.oefE = Button(self.probleemContainer, text="Oefen willekeurige maal- en deeltafels", command=self.function_rnd_all, width=30)
         self.oefE.pack()
 
     def vervolgOef(self):            
@@ -353,7 +358,8 @@ class Application(Frame):
         self.labelFactor.pack(side=LEFT)
         self.labelMaal.pack(side=LEFT)
         self.labelTafel.pack(side=LEFT)
-        self.inputField = Entry(self.oplossingContainer, font = ("Helvetica", 16), justify=CENTER, width=15, bg="yellow")
+        self.inputField = Entry(self.oplossingContainer, font = ("Helvetica", 16), justify=CENTER,
+                                width=15, bg="yellow")
         
         #self.inputField.pack()
         #commented out since the startOef function performs the pack.
@@ -371,10 +377,11 @@ class Score(Frame):
         self.myParentScore = myParent
         self.scoreContainer = Frame(myParent, bg="white")
         self.scoreContainer.pack()
-        s='Naam      Score    Tijd\n'
+        s='Naam      Score      Tijd\n'
         for player in Spelers:
             for score in player['Scores']:
-                s += "{0:<10s}{1:5d}{2:8.2f}\n".format(player['Naam'],score[0],score[1])
+                tijdStr = "{0:6.0f}".format(int(score[1]//60)) + "'" + "{0:2.0f}".format(int(round(score[1]%60,0))) + "\""
+                s += "{0:<10s}{1:4d}%".format(player['Naam'],int(score[0])) + tijdStr+ "\n"
         if __DEBUG__:
             print(s)
         self.scoreList = Text(self.scoreContainer)
@@ -382,10 +389,11 @@ class Score(Frame):
         self.scoreList.insert(END, s)
 
     def update(self):
-        s='Naam      Score    Tijd\n'
+        s='Naam      Score      Tijd\n'
         for player in Spelers:
             for score in player['Scores']:
-                s += "{0:<10s}{1:5d}{2:8.2f}\n".format(player['Naam'],score[0],score[1])
+                tijdStr = "{0:6.0f}".format(int(score[1]//60)) + "'" + "{0:2.0f}".format(int(round(score[1]%60,0))) + "\""
+                s += "{0:<10s}{1:4d}%".format(player['Naam'],int(score[0])) + tijdStr+ "\n"
         if __DEBUG__:
             print(s)
         self.scoreList.replace(1.0, END, s)
